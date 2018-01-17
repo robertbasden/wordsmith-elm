@@ -1,7 +1,7 @@
 
 # Wordsmith Elm
 
-Re-working of another [project](https://github.com/robertbasden/wordsmith) into Elm
+A version of [project](https://github.com/robertbasden/wordsmith) in Elm
 
 ## Build
 
