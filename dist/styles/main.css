@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.no-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+path {
+  stroke-width: 8;
+  stroke: #CCC;
+  stroke-linecap: round;
+}
+circle {
+  fill: none;
+  stroke: #CCC;
+  stroke-width: 8;
+}
+rect {
+  fill: #CCC;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.page-title {
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.page-text {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.letter-container {
+    width: 100%;
+    max-width: 600px;
+    background-color: #F1F1F1;
+    padding: 5px;
+    margin: 0 auto;
+    box-shadow: inset 0 0 10px #CCC;
+    border: 5px solid #CCC;
+}
+
+.letter {
+  background-color: #344C9F;
+  color: #BED4EF;
+  border: 2px solid #579FC8;
+  border-radius: 5px;
+  box-shadow: 0 5px 5px rgba(182, 182, 182, 0.75);
+  overflow: hidden;
+  width: calc((100% - (8 * 5px)) / 9);
+  position: relative;
+  display: inline-block;
+  margin-right: 5px;
+}
+.letter > div {
+  position: absolute;
+  top: 50%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin-top: -16px;
+  font-size: 28px;
+}
+.letter:before {
+  content: " ";
+  font-size: 0;
+  display: block;
+  padding-top: 100%;
+}
+.letter:last-child {
+  margin-right: 0px;
+}
+.letter.letter--disabled {
+  opacity: 0.5;
+}
+
+.letter-container--selectable .letter {
+  cursor: pointer;
+  transition: transform 0.1s linear, opacity 0.1s linear;
+}
+.letter-container--selectable .letter:hover {
+  transform: scale(1.1);
+}
+
+.button-set {
+  display: flex;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.button {
+  background-color: #364E9D;
+  font-size: 16px;
+  color: #FFF;
+  padding: 10px;
+  text-transform: uppercase;
+  text-align: center;
+  border-radius: 20px;
+  flex-grow: 1;
+  margin-right: 5px;
+  box-shadow: 0 6px #1c337a;
+  border: none;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: auto;
+}
+.button.button--success {
+  background-color: #2d9b14;
+  box-shadow: 0 6px #2a7f1c;
+}
+.button.button--danger {
+  background-color: #CD0A0A;
+  box-shadow: 0 6px #af0f15;
+}
+
+.hint-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.instructions-container {
+  font-size: 20px;
+  padding-top: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  height: 80px;
+}
