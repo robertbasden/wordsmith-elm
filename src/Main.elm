@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import AnimationFrame exposing (times)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -7,6 +8,7 @@ import Random exposing (initialSeed, step)
 import Random.List exposing (choose, shuffle)
 import Svg
 import Svg.Attributes exposing (cx, cy, d, r, transform)
+import Time exposing (Time)
 
 
 type ButtonType
@@ -21,6 +23,7 @@ type alias Game =
     , hint : String
     , choosenLetters : List ( Int, String )
     , showHint : Bool
+    , startTime : Time
     }
 
 
@@ -76,6 +79,7 @@ type Screen
 type alias Model =
     { screen : Screen
     , seed : Random.Seed
+    , currentTime : Time
     }
 
 
@@ -85,11 +89,12 @@ type Msg
     | NewWord
     | GoToGameOver String
     | GameMsgContainer GameMsg
+    | Tick Time
 
 
 init : Int -> ( Model, Cmd msg )
 init timestamp =
-    ( Model TitleScreen (initialSeed timestamp), Cmd.none )
+    ( Model TitleScreen (initialSeed timestamp) (toFloat timestamp), Cmd.none )
 
 
 words =
@@ -132,12 +137,12 @@ getNewWord seed =
             Debug.crash "There are no words to choose from..."
 
 
-newGame seed =
+newGame seed time =
     let
         ( ( letters, word, hint ), newSeed ) =
             getNewWord seed
     in
-    ( Game letters word hint [] False, newSeed )
+    ( Game letters word hint [] False time, newSeed )
 
 
 update message model =
@@ -148,7 +153,7 @@ update message model =
         StartNewGame ->
             let
                 ( gameModel, seed ) =
-                    newGame model.seed
+                    newGame model.seed model.currentTime
             in
             ( { model
                 | screen = GameScreen gameModel
@@ -160,7 +165,7 @@ update message model =
         NewWord ->
             let
                 ( gameModel, seed ) =
-                    newGame model.seed
+                    newGame model.seed model.currentTime
             in
             ( { model
                 | screen = GameScreen gameModel
@@ -171,6 +176,9 @@ update message model =
 
         GoToGameOver gameOverMessage ->
             ( { model | screen = GameOverScreen gameOverMessage }, Cmd.none )
+
+        Tick time ->
+            ( { model | currentTime = time }, Cmd.none )
 
         GameMsgContainer gameMsg ->
             case model.screen of
@@ -192,7 +200,7 @@ update message model =
                             if checkResult game then
                                 let
                                     ( gameModel, seed ) =
-                                        newGame model.seed
+                                        newGame model.seed model.currentTime
                                 in
                                 ( { model
                                     | screen = GameScreen gameModel
@@ -257,8 +265,22 @@ titleScreen =
         ]
 
 
-timer percentageElapsed =
+getPercentageTimeElapsed startTime currentTime =
     let
+        allowedTime =
+            15 * 1000
+
+        timeElapsed =
+            currentTime - startTime
+    in
+    clamp 0 100 ((timeElapsed / allowedTime) * 100)
+
+
+timer startTime currentTime =
+    let
+        percentageElapsed =
+            getPercentageTimeElapsed startTime currentTime
+
         rotation =
             (percentageElapsed / 100) * 360
 
@@ -287,8 +309,8 @@ letterBlocks selectable letters listOfUsedIds =
     div [ classList [ ( "letter-container", True ), ( "letter-container--selectable", selectable ) ] ] (List.map (letterBlock selectable listOfUsedIds) letters)
 
 
-gameScreen : Game -> Html GameMsg
-gameScreen game =
+gameScreen : Game -> Time -> Html GameMsg
+gameScreen game currentTime =
     let
         canUndo =
             List.length game.choosenLetters > 0
@@ -312,7 +334,7 @@ gameScreen game =
             List.map (\( id, letter ) -> id) game.choosenLetters
     in
     div []
-        [ div [ class "timer-container" ] [ timer 0 ]
+        [ div [ class "timer-container" ] [ timer game.startTime currentTime ]
         , letterBlocks True (List.sortWith (\( id, _ ) ( id2, _ ) -> compare id id2) allLetters) listOfUsedIds
         , br [] []
         , if someLettersChoosen then
@@ -351,7 +373,7 @@ view model =
                 titleScreen
 
             GameScreen game ->
-                Html.map (\msg -> GameMsgContainer msg) (gameScreen game)
+                Html.map (\msg -> GameMsgContainer msg) (gameScreen game model.currentTime)
 
             GameOverScreen message ->
                 gameOverScreen message
@@ -363,5 +385,9 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = \_ -> Sub.none
+        , subscriptions =
+            \_ ->
+                Sub.batch
+                    [ times (\time -> Tick time)
+                    ]
         }
