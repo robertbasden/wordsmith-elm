@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/robertbasden/wordsmith-elm/issues"
   },
-  "homepage": "https://github.com/robertbasden/wordsmith-elm#readme"
+  "homepage": "https://github.com/robertbasden/wordsmith-elm#readme",
+  "devDependencies": {
+    "gh-pages": "^1.1.0"
+  }
 }
