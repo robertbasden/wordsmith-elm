@@ -3,6 +3,8 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Svg
+import Svg.Attributes exposing (cx, cy, d, r, transform)
 
 
 type ButtonType
@@ -219,8 +221,20 @@ titleScreen =
         ]
 
 
-timer =
-    div [] []
+timer percentageElapsed =
+    let
+        rotation =
+            (percentageElapsed / 100) * 360
+
+        rotationString =
+            "rotate(" ++ toString rotation ++ " 100 100)"
+    in
+    div []
+        [ Svg.svg [ style [ ( "width", "200px" ), ( "height", "200px" ) ] ]
+            [ Svg.circle [ cx "100px", cy "100px", r "90px" ] []
+            , Svg.path [ d "M100 100 L100 30", transform rotationString ] []
+            ]
+        ]
 
 
 letterBlock selectable listOfUsedIds ( id, letter ) =
@@ -262,7 +276,7 @@ gameScreen game =
             List.map (\( id, letter ) -> id) game.choosenLetters
     in
     div []
-        [ timer
+        [ div [ class "timer-container" ] [ timer 0 ]
         , letterBlocks True (List.sortWith (\( id, _ ) ( id2, _ ) -> compare id id2) allLetters) listOfUsedIds
         , br [] []
         , if someLettersChoosen then
