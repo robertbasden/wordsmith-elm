@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "predeploy": "elm-make src/Main.elm --output=dist/scripts/main.js",
-    "deploy": "gh-pages -d dist"
+    "deploy": "node_modules/gh-pages/bin/gh-pages -d dist"
   },
   "repository": {
     "type": "git",
