@@ -178,7 +178,20 @@ update message model =
             ( { model | screen = GameOverScreen gameOverMessage }, Cmd.none )
 
         Tick time ->
-            ( { model | currentTime = time }, Cmd.none )
+            case model.screen of
+                GameScreen game ->
+                    let
+                        percentageElapsed =
+                            getPercentageTimeElapsed game.startTime time
+                    in
+                    if percentageElapsed == 100 then
+                        { model | currentTime = time }
+                            |> update (GoToGameOver "Whoops! You ran out of time!")
+                    else
+                        ( { model | currentTime = time }, Cmd.none )
+
+                _ ->
+                    ( { model | currentTime = time }, Cmd.none )
 
         GameMsgContainer gameMsg ->
             case model.screen of
