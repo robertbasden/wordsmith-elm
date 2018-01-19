@@ -1,0 +1,20 @@
+{
+  "name": "wordsmith-elm",
+  "version": "1.0.0",
+  "description": "A version of [project](https://github.com/robertbasden/wordsmith) in Elm",
+  "main": "index.js",
+  "scripts": {
+    "predeploy": "elm-make src/Main.elm --output=dist/scripts/main.js",
+    "deploy": "gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertbasden/wordsmith-elm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robertbasden/wordsmith-elm/issues"
+  },
+  "homepage": "https://github.com/robertbasden/wordsmith-elm#readme"
+}
