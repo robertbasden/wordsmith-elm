@@ -3,6 +3,8 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Random exposing (initialSeed, step)
+import Random.List exposing (choose, shuffle)
 import Svg
 import Svg.Attributes exposing (cx, cy, d, r, transform)
 
@@ -73,6 +75,7 @@ type Screen
 
 type alias Model =
     { screen : Screen
+    , seed : Random.Seed
     }
 
 
@@ -84,8 +87,9 @@ type Msg
     | GameMsgContainer GameMsg
 
 
-init =
-    Model TitleScreen
+init : Int -> ( Model, Cmd msg )
+init timestamp =
+    ( Model TitleScreen (initialSeed timestamp), Cmd.none )
 
 
 words =
@@ -105,73 +109,105 @@ checkResult game =
     game.solution == proposedSolution
 
 
-getNewWord =
+getNewWord seed =
     let
-        newWord =
-            List.head words
+        wordGenerator =
+            choose words
+
+        ( ( newWord, _ ), newSeed ) =
+            Random.step wordGenerator seed
     in
     case newWord of
         Just ( word, hint ) ->
             let
-                letters =
-                    String.split "" word
-                        |> List.indexedMap (,)
+                letterGenerator =
+                    shuffle (String.split "" word)
+
+                ( letters, newSeed2 ) =
+                    Random.step letterGenerator newSeed
             in
-            ( letters, word, hint )
+            ( ( letters |> List.indexedMap (,), word, hint ), newSeed2 )
 
         Nothing ->
             Debug.crash "There are no words to choose from..."
 
 
-newGame =
+newGame seed =
     let
-        ( letters, word, hint ) =
-            getNewWord
+        ( ( letters, word, hint ), newSeed ) =
+            getNewWord seed
     in
-    Game letters word hint [] False
+    ( Game letters word hint [] False, newSeed )
 
 
 update message model =
     case message of
         GoToTitle ->
-            { model | screen = TitleScreen }
+            ( { model | screen = TitleScreen }, Cmd.none )
 
         StartNewGame ->
-            { model | screen = GameScreen newGame }
+            let
+                ( gameModel, seed ) =
+                    newGame model.seed
+            in
+            ( { model
+                | screen = GameScreen gameModel
+                , seed = seed
+              }
+            , Cmd.none
+            )
 
         NewWord ->
-            { model | screen = GameScreen newGame }
+            let
+                ( gameModel, seed ) =
+                    newGame model.seed
+            in
+            ( { model
+                | screen = GameScreen gameModel
+                , seed = seed
+              }
+            , Cmd.none
+            )
 
         GoToGameOver gameOverMessage ->
-            { model | screen = GameOverScreen gameOverMessage }
+            ( { model | screen = GameOverScreen gameOverMessage }, Cmd.none )
 
         GameMsgContainer gameMsg ->
             case model.screen of
                 GameScreen game ->
                     case gameMsg of
                         Undo ->
-                            { model | screen = GameScreen (undo game) }
+                            ( { model | screen = GameScreen (undo game) }, Cmd.none )
 
                         Clear ->
-                            { model | screen = GameScreen (clear game) }
+                            ( { model | screen = GameScreen (clear game) }, Cmd.none )
 
                         ChooseLetter letterId ->
-                            { model | screen = GameScreen (chooseLetter letterId game) }
+                            ( { model | screen = GameScreen (chooseLetter letterId game) }, Cmd.none )
 
                         ShowHint ->
-                            { model | screen = GameScreen (showHint game) }
+                            ( { model | screen = GameScreen (showHint game) }, Cmd.none )
 
                         Submit ->
                             if checkResult game then
-                                { model | screen = GameScreen newGame }
+                                let
+                                    ( gameModel, seed ) =
+                                        newGame model.seed
+                                in
+                                ( { model
+                                    | screen = GameScreen gameModel
+                                    , seed = seed
+                                  }
+                                , Cmd.none
+                                )
                             else
                                 update (GoToGameOver "Whoops! That was the wrong word!") model
 
                         NoOp ->
-                            model
+                            ( model, Cmd.none )
 
                 _ ->
-                    model
+                    ( model, Cmd.none )
 
 
 container children =
@@ -323,8 +359,9 @@ view model =
 
 
 main =
-    beginnerProgram
-        { model = init
+    programWithFlags
+        { init = init
         , update = update
         , view = view
+        , subscriptions = \_ -> Sub.none
         }
