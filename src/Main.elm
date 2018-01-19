@@ -25,6 +25,7 @@ type GameMsg
     | Clear
     | ChooseLetter Int
     | ShowHint
+    | Submit
     | NoOp
 
 
@@ -92,6 +93,16 @@ words =
     ]
 
 
+checkResult game =
+    let
+        proposedSolution =
+            game.choosenLetters
+                |> List.map (\( id, string ) -> string)
+                |> String.concat
+    in
+    game.solution == proposedSolution
+
+
 getNewWord =
     let
         newWord =
@@ -147,6 +158,12 @@ update message model =
 
                         ShowHint ->
                             { model | screen = GameScreen (showHint game) }
+
+                        Submit ->
+                            if checkResult game then
+                                { model | screen = GameScreen newGame }
+                            else
+                                update (GoToGameOver "Whoops! That was the wrong word!") model
 
                         NoOp ->
                             model
@@ -256,7 +273,7 @@ gameScreen game =
         , buttonSet
             [ button "Undo" Normal (not canUndo) Undo
             , button "Clear" Danger (not canClear) Clear
-            , button "Submit" Success (not canSubmit) NoOp
+            , button "Submit" Success (not canSubmit) Submit
             , button "Show Hint" Normal (not canShowHint) ShowHint
             ]
         , br [] []
