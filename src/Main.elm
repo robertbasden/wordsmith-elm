@@ -1,9 +1,11 @@
 module Main exposing (..)
 
 import AnimationFrame exposing (times)
+import Char
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (on, onClick)
+import Keyboard exposing (presses)
 import Random exposing (initialSeed, step)
 import Random.List exposing (choose, shuffle)
 import Svg
@@ -33,6 +35,7 @@ type GameMsg
     | ChooseLetter Int
     | ShowHint
     | Submit
+    | KeyPressed Keyboard.KeyCode
     | NoOp
 
 
@@ -224,7 +227,28 @@ update message model =
                             else
                                 update (GoToGameOver "Whoops! That was the wrong word!") model
 
-                        NoOp ->
+                        KeyPressed code ->
+                            let
+                                letter =
+                                    code
+                                        |> Char.fromCode
+                                        |> String.fromChar
+                                        |> String.toUpper
+
+                                choosenLetter =
+                                    game.letters
+                                        |> List.filter (\( id, str ) -> str == letter)
+                                        |> List.map (\( id, _ ) -> id)
+                                        |> List.head
+                            in
+                            case choosenLetter of
+                                Just letterId ->
+                                    update (GameMsgContainer (ChooseLetter letterId)) model
+
+                                Nothing ->
+                                    ( model, Cmd.none )
+
+                        _ ->
                             ( model, Cmd.none )
 
                 _ ->
@@ -402,5 +426,6 @@ main =
             \_ ->
                 Sub.batch
                     [ times (\time -> Tick time)
+                    , presses (\code -> GameMsgContainer (KeyPressed code))
                     ]
         }

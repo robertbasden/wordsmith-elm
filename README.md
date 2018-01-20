@@ -10,7 +10,3 @@ A version of [project](https://github.com/robertbasden/wordsmith) in Elm
 ```
 elm-make src/Main.elm --output=dist/scripts/main.js
 ```
-
-# Todo
-
-- Support entering the anagram using keyboard
