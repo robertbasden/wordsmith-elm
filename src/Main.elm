@@ -5,7 +5,7 @@ import Char
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick)
-import Keyboard exposing (presses)
+import Keyboard.Extra exposing (Key)
 import Random exposing (initialSeed, step)
 import Random.List exposing (choose, shuffle)
 import Svg
@@ -35,7 +35,6 @@ type GameMsg
     | ChooseLetter Int
     | ShowHint
     | Submit
-    | KeyPressed Keyboard.KeyCode
     | NoOp
 
 
@@ -93,6 +92,7 @@ type Msg
     | GoToGameOver String
     | GameMsgContainer GameMsg
     | Tick Time
+    | KeyUp Key
 
 
 init : Int -> ( Model, Cmd msg )
@@ -196,6 +196,36 @@ update message model =
                 _ ->
                     ( { model | currentTime = time }, Cmd.none )
 
+        KeyUp key ->
+            case model.screen of
+                GameScreen game ->
+                    if key == Keyboard.Extra.BackSpace then
+                        update (GameMsgContainer Undo) model
+                    else
+                        let
+                            letter =
+                                key
+                                    |> Keyboard.Extra.toCode
+                                    |> Char.fromCode
+                                    |> String.fromChar
+                                    |> String.toUpper
+
+                            choosenLetter =
+                                game.letters
+                                    |> List.filter (\( id, str ) -> str == letter)
+                                    |> List.map (\( id, _ ) -> id)
+                                    |> List.head
+                        in
+                        case choosenLetter of
+                            Just letterId ->
+                                update (GameMsgContainer (ChooseLetter letterId)) model
+
+                            Nothing ->
+                                ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         GameMsgContainer gameMsg ->
             case model.screen of
                 GameScreen game ->
@@ -226,27 +256,6 @@ update message model =
                                 )
                             else
                                 update (GoToGameOver "Whoops! That was the wrong word!") model
-
-                        KeyPressed code ->
-                            let
-                                letter =
-                                    code
-                                        |> Char.fromCode
-                                        |> String.fromChar
-                                        |> String.toUpper
-
-                                choosenLetter =
-                                    game.letters
-                                        |> List.filter (\( id, str ) -> str == letter)
-                                        |> List.map (\( id, _ ) -> id)
-                                        |> List.head
-                            in
-                            case choosenLetter of
-                                Just letterId ->
-                                    update (GameMsgContainer (ChooseLetter letterId)) model
-
-                                Nothing ->
-                                    ( model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -426,6 +435,6 @@ main =
             \_ ->
                 Sub.batch
                     [ times (\time -> Tick time)
-                    , presses (\code -> GameMsgContainer (KeyPressed code))
+                    , Keyboard.Extra.ups KeyUp
                     ]
         }
