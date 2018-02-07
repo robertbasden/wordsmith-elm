@@ -314,7 +314,7 @@ titleScreen =
 getPercentageTimeElapsed startTime currentTime =
     let
         allowedTime =
-            15 * 1000
+            25 * 1000
 
         timeElapsed =
             currentTime - startTime
