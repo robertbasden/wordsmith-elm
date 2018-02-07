@@ -101,7 +101,9 @@ init timestamp =
 
 
 words =
-    [ ( "MAXIMIZED", "Make as large or great as possible." )
+    [ ( "FOO", "Made up word for programmers" )
+    , ( "JABBERWOCKY", "The jaws that bite, the claws that catch!" )
+    , ( "MAXIMIZED", "Make as large or great as possible." )
     , ( "JACKKNIFE", "Move one's body into a bent or doubled-up position." )
     , ( "FLAPJACKS", "Sweet dense cakes made from oats, golden syrup, and melted butter, served in rectangles." )
     ]
@@ -365,7 +367,7 @@ gameScreen game currentTime =
             List.length game.choosenLetters > 0
 
         canSubmit =
-            List.length game.choosenLetters == 9
+            List.length game.choosenLetters == List.length allLetters
 
         canShowHint =
             not game.showHint
