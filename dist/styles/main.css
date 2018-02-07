@@ -60,7 +60,6 @@ rect {
 
 .letter-container {
     width: 100%;
-    max-width: 600px;
     background-color: #F1F1F1;
     padding: 5px;
     margin: 0 auto;
@@ -75,7 +74,6 @@ rect {
   border-radius: 5px;
   box-shadow: 0 5px 5px rgba(182, 182, 182, 0.75);
   overflow: hidden;
-  width: calc((100% - (8 * 5px)) / 9);
   position: relative;
   display: inline-block;
   margin-right: 5px;
@@ -87,9 +85,10 @@ rect {
   left: 0;
   right: 0;
   text-align: center;
-  margin-top: -16px;
-  font-size: 28px;
+  margin-top: -10px;
+  font-size: 18px;
 }
+
 .letter:before {
   content: " ";
   font-size: 0;
