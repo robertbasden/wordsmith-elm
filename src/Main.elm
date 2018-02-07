@@ -101,7 +101,9 @@ init timestamp =
 
 
 words =
-    [ ( "MAXIMIZED", "Make as large or great as possible." )
+    [ ( "FOO", "Made up word for programmers" )
+    , ( "JABBERWOCKY", "The jaws that bite, the claws that catch!" )
+    , ( "MAXIMIZED", "Make as large or great as possible." )
     , ( "JACKKNIFE", "Move one's body into a bent or doubled-up position." )
     , ( "FLAPJACKS", "Sweet dense cakes made from oats, golden syrup, and melted butter, served in rectangles." )
     ]
@@ -341,18 +343,28 @@ timer startTime currentTime =
         ]
 
 
-letterBlock selectable listOfUsedIds ( id, letter ) =
+letterBlock selectable letterWidth listOfUsedIds ( id, letter ) =
     let
         isDisabled =
             selectable && List.member id listOfUsedIds
     in
-    div [ classList [ ( "letter no-select", True ), ( "letter--disabled", isDisabled ) ], onClick (ChooseLetter id) ]
+    div [ classList [ ( "letter no-select", True ), ( "letter--disabled", isDisabled ) ], onClick (ChooseLetter id), style [ ( "width", letterWidth ) ] ]
         [ div [] [ text letter ]
         ]
 
 
-letterBlocks selectable letters listOfUsedIds =
-    div [ classList [ ( "letter-container", True ), ( "letter-container--selectable", selectable ) ] ] (List.map (letterBlock selectable listOfUsedIds) letters)
+letterBlocks selectable totalLetterCount letters listOfUsedIds =
+    let
+        containerMaxWidth =
+            clamp 200 600 (totalLetterCount * 60)
+
+        containerMaxWidthString =
+            toString containerMaxWidth ++ "px"
+
+        letterWidth =
+            "calc((100% - (" ++ toString (totalLetterCount - 1) ++ " * 5px)) / " ++ toString totalLetterCount ++ ")"
+    in
+    div [ classList [ ( "letter-container", True ), ( "letter-container--selectable", selectable ) ], style [ ( "max-width", containerMaxWidthString ) ] ] (List.map (letterBlock selectable letterWidth listOfUsedIds) letters)
 
 
 gameScreen : Game -> Time -> Html GameMsg
@@ -365,7 +377,7 @@ gameScreen game currentTime =
             List.length game.choosenLetters > 0
 
         canSubmit =
-            List.length game.choosenLetters == 9
+            List.length game.choosenLetters == totalLetterCount
 
         canShowHint =
             not game.showHint
@@ -376,15 +388,18 @@ gameScreen game currentTime =
         allLetters =
             game.letters ++ game.choosenLetters
 
+        totalLetterCount =
+            List.length allLetters
+
         listOfUsedIds =
             List.map (\( id, letter ) -> id) game.choosenLetters
     in
     div []
         [ div [ class "timer-container" ] [ timer game.startTime currentTime ]
-        , letterBlocks True (List.sortWith (\( id, _ ) ( id2, _ ) -> compare id id2) allLetters) listOfUsedIds
+        , letterBlocks True totalLetterCount (List.sortWith (\( id, _ ) ( id2, _ ) -> compare id id2) allLetters) listOfUsedIds
         , br [] []
         , if someLettersChoosen then
-            letterBlocks False game.choosenLetters listOfUsedIds
+            letterBlocks False totalLetterCount game.choosenLetters listOfUsedIds
           else
             div [ class "instructions-container" ] [ text "Click or type the letters above to solve the anagram before the time runs out!" ]
         , br [] []
