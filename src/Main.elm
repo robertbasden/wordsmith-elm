@@ -101,11 +101,17 @@ init timestamp =
 
 
 words =
-    [ ( "FOO", "Made up word for programmers" )
-    , ( "JABBERWOCKY", "The jaws that bite, the claws that catch!" )
+    [ ( "JABBERWOCKY", "The jaws that bite, the claws that catch!" )
     , ( "MAXIMIZED", "Make as large or great as possible." )
     , ( "JACKKNIFE", "Move one's body into a bent or doubled-up position." )
     , ( "FLAPJACKS", "Sweet dense cakes made from oats, golden syrup, and melted butter, served in rectangles." )
+    , ( "DOUGH", "A thick, malleable mixture of flour and liquid, used for baking into bread" )
+    , ( "REFLECTION", "An image seen in a mirror or shiny surface" )
+    , ( "ABSTRACT", "Existing in thought or as an idea but not having a physical or concrete existence" )
+    , ( "DIRECTOR", "A person who is in charge of an activity, department, or organization" )
+    , ( "CURVE", "A line or outline which gradually deviates from being straight for some or all of its length" )
+    , ( "VERSION", "A particular release of a piece of computer software" )
+    , ( "DEMAND", "An insistent and peremptory request, made as of right" )
     ]
 
 
